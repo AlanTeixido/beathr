@@ -1,200 +1,253 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface StepData {
   id: number;
+  label: string;
   title: string;
   description: string;
-  icon: string;
-  status: "active" | "pending";
+  icon: React.ReactNode;
+  color: string;
+  metrics: string[];
 }
 
-const STEPS: StepData[] = [
+const SOURCES: StepData[] = [
   {
     id: 1,
-    title: "Conecta tus fuentes",
-    description:
-      "Vincula Strava, Oura o Garmin en un clic. Beathr recoge HRV, sue\u00f1o, frecuencia card\u00edaca y carga de entrenamiento autom\u00e1ticamente.",
-    icon: "S",
-    status: "active",
+    label: "Strava",
+    title: "Entrenamiento",
+    description: "Distancia, ritmo, potencia, frecuencia card\u00edaca en ejercicio, Training Load.",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#fc4c02">
+        <path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169" />
+      </svg>
+    ),
+    color: "#fc4c02",
+    metrics: ["TSS / carga", "km semanales", "FC media"],
   },
   {
     id: 2,
-    title: "Aprende tu baseline",
-    description:
-      "En 7 d\u00edas Beathr construye tu perfil \u00fanico: tu HRV media, tus patrones de sue\u00f1o y tu capacidad de absorber carga.",
-    icon: "B",
-    status: "active",
+    label: "Oura",
+    title: "Recuperaci\u00f3n",
+    description: "HRV nocturna, fases de sue\u00f1o, temperatura corporal, frecuencia respiratoria.",
+    icon: (
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="white" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+      </svg>
+    ),
+    color: "#a78bfa",
+    metrics: ["HRV (ms)", "Sue\u00f1o profundo", "Temp. corporal"],
   },
   {
     id: 3,
-    title: "Sem\u00e1foro diario",
-    description:
-      "Cada ma\u00f1ana recibes una se\u00f1al clara: verde (apretar), \u00e1mbar (moderado) o rojo (recuperar). Sin ruido, sin dashboards.",
-    icon: "\u2665",
-    status: "active",
+    label: "Garmin",
+    title: "Biom\u00e9tricas",
+    description: "Body Battery, Stress Score, SpO2, frecuencia card\u00edaca 24/7.",
+    icon: (
+      <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#38bdf8" strokeWidth="1.5">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+      </svg>
+    ),
+    color: "#38bdf8",
+    metrics: ["Body Battery", "Stress", "SpO2"],
   },
 ];
 
 export default function OrbitalSteps() {
-  const [activeId, setActiveId] = useState<number | null>(null);
-  const [rotation, setRotation] = useState(0);
-  const [autoRotate, setAutoRotate] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!autoRotate) return;
-    const timer = setInterval(() => {
-      setRotation((prev) => (prev + 0.25) % 360);
-    }, 50);
-    return () => clearInterval(timer);
-  }, [autoRotate]);
-
-  const handleNodeClick = useCallback(
-    (id: number) => {
-      if (activeId === id) {
-        setActiveId(null);
-        setAutoRotate(true);
-      } else {
-        setActiveId(id);
-        setAutoRotate(false);
-        const idx = STEPS.findIndex((s) => s.id === id);
-        const targetAngle = (idx / STEPS.length) * 360;
-        setRotation(270 - targetAngle);
-      }
-    },
-    [activeId]
-  );
-
-  const handleBgClick = useCallback(
-    (e: React.MouseEvent) => {
-      if (e.target === containerRef.current) {
-        setActiveId(null);
-        setAutoRotate(true);
-      }
-    },
-    []
-  );
+  const [activeSource, setActiveSource] = useState<number | null>(null);
+  const [showOutput, setShowOutput] = useState(false);
 
   return (
-    <div
-      ref={containerRef}
-      onClick={handleBgClick}
-      className="relative mx-auto flex h-[480px] w-full max-w-lg items-center justify-center"
-    >
-      {/* Center node */}
-      <div className="absolute z-10 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-[#4ade80] via-[#22c55e] to-[#15803d]">
-        <div className="absolute h-20 w-20 animate-ping rounded-full border border-[#4ade80]/20 opacity-70" />
-        <div
-          className="absolute h-24 w-24 animate-ping rounded-full border border-[#4ade80]/10 opacity-50"
-          style={{ animationDelay: "0.5s" }}
-        />
-        <svg width="24" height="16" viewBox="0 0 56 28" fill="none">
-          <polyline
-            points="0,18 10,18 14,18 18,4 22,24 26,10 30,18 36,18 40,18 44,6 48,22 52,14 56,18"
-            stroke="white"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </div>
+    <div className="mx-auto max-w-4xl">
+      {/* Data flow visualization */}
+      <div className="relative flex flex-col items-center gap-8 py-4">
 
-      {/* Orbit ring */}
-      <div className="absolute h-80 w-80 rounded-full border border-zinc-800/50 sm:h-96 sm:w-96" />
-
-      {/* Orbit nodes */}
-      {STEPS.map((step, index) => {
-        const angle = ((index / STEPS.length) * 360 + rotation) % 360;
-        const radius = typeof window !== "undefined" && window.innerWidth < 640 ? 160 : 192;
-        const radian = (angle * Math.PI) / 180;
-        const x = radius * Math.cos(radian);
-        const y = radius * Math.sin(radian);
-        const isActive = activeId === step.id;
-        const opacity = Math.max(0.5, 0.5 + 0.5 * ((1 + Math.sin(radian)) / 2));
-
-        return (
-          <div
-            key={step.id}
-            className="absolute cursor-pointer transition-all duration-700"
-            style={{
-              transform: `translate(${x}px, ${y}px)`,
-              zIndex: isActive ? 200 : Math.round(100 + 50 * Math.cos(radian)),
-              opacity: isActive ? 1 : opacity,
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleNodeClick(step.id);
-            }}
-          >
-            {/* Glow */}
-            <div
-              className={`absolute -inset-3 rounded-full ${isActive ? "animate-pulse" : ""}`}
-              style={{
-                background: `radial-gradient(circle, rgba(74,222,128,${isActive ? 0.25 : 0.1}) 0%, transparent 70%)`,
+        {/* Source cards row */}
+        <div className="grid w-full grid-cols-3 gap-4">
+          {SOURCES.map((source) => (
+            <motion.button
+              key={source.id}
+              onClick={() => {
+                setActiveSource(activeSource === source.id ? null : source.id);
+                setShowOutput(false);
               }}
-            />
-
-            {/* Node */}
-            <div
-              className={`flex h-12 w-12 items-center justify-center rounded-full border-2 text-sm font-bold transition-all duration-300 ${
-                isActive
-                  ? "scale-125 border-[#4ade80] bg-[#4ade80] text-[#0a0a0a] shadow-lg shadow-[#4ade80]/30"
-                  : "border-zinc-600 bg-zinc-900 text-zinc-300 hover:border-[#4ade80]/50"
+              whileHover={{ y: -4 }}
+              whileTap={{ scale: 0.97 }}
+              className={`group relative overflow-hidden rounded-2xl border p-5 text-left transition-all ${
+                activeSource === source.id
+                  ? "border-zinc-500 bg-zinc-800/80"
+                  : "border-zinc-800 bg-zinc-900/50 hover:border-zinc-700"
               }`}
             >
-              {step.icon}
-            </div>
+              {/* Accent top bar */}
+              <div
+                className="absolute left-0 right-0 top-0 h-0.5 transition-opacity"
+                style={{
+                  background: source.color,
+                  opacity: activeSource === source.id ? 1 : 0.3,
+                }}
+              />
 
-            {/* Label */}
-            <div
-              className={`absolute top-14 left-1/2 -translate-x-1/2 whitespace-nowrap text-xs font-semibold tracking-wider transition-all duration-300 ${
-                isActive ? "text-[#4ade80]" : "text-zinc-500"
-              }`}
-            >
-              0{step.id}
-            </div>
-
-            {/* Expanded card */}
-            <AnimatePresence>
-              {isActive && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                  transition={{ duration: 0.3 }}
-                  className="absolute left-1/2 top-20 z-50 w-64 -translate-x-1/2 rounded-xl border border-zinc-700/50 bg-zinc-900/95 p-4 shadow-xl shadow-black/30 backdrop-blur-lg"
+              <div className="mb-3 flex items-center gap-3">
+                <div
+                  className="flex h-10 w-10 items-center justify-center rounded-xl"
+                  style={{ background: `${source.color}15` }}
                 >
-                  <div className="absolute -top-3 left-1/2 h-3 w-px -translate-x-1/2 bg-[#4ade80]/50" />
-                  <h4 className="mb-2 text-sm font-bold text-zinc-100">
-                    {step.title}
-                  </h4>
-                  <p className="text-xs leading-relaxed text-zinc-400">
-                    {step.description}
-                  </p>
-                  <div className="mt-3 border-t border-zinc-800 pt-3">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="text-zinc-500">Paso {step.id} de 3</span>
-                      <div className="flex gap-1">
-                        {STEPS.map((s) => (
-                          <div
-                            key={s.id}
-                            className={`h-1 w-4 rounded-full ${
-                              s.id <= step.id ? "bg-[#4ade80]" : "bg-zinc-700"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
+                  {source.icon}
+                </div>
+                <div>
+                  <div className="text-xs font-medium text-zinc-500">{source.label}</div>
+                  <div className="text-sm font-semibold">{source.title}</div>
+                </div>
+              </div>
+
+              {/* Metrics preview */}
+              <div className="flex flex-wrap gap-1.5">
+                {source.metrics.map((m) => (
+                  <span
+                    key={m}
+                    className="rounded-md bg-zinc-800/80 px-2 py-0.5 text-[10px] text-zinc-500"
+                  >
+                    {m}
+                  </span>
+                ))}
+              </div>
+
+              {/* Expanded detail */}
+              <AnimatePresence>
+                {activeSource === source.id && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <p className="mt-3 border-t border-zinc-800 pt-3 text-xs leading-relaxed text-zinc-400">
+                      {source.description}
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Animated flow lines */}
+        <div className="relative flex w-full items-center justify-center py-2">
+          <svg className="h-12 w-full max-w-md" viewBox="0 0 400 48" fill="none">
+            {/* Three lines converging to center */}
+            <motion.path
+              d="M60 4 L200 44"
+              stroke="#fc4c02"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+              initial={{ pathLength: 0, opacity: 0.3 }}
+              whileInView={{ pathLength: 1, opacity: 0.6 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, delay: 0 }}
+            />
+            <motion.path
+              d="M200 4 L200 44"
+              stroke="#a78bfa"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+              initial={{ pathLength: 0, opacity: 0.3 }}
+              whileInView={{ pathLength: 1, opacity: 0.6 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, delay: 0.3 }}
+            />
+            <motion.path
+              d="M340 4 L200 44"
+              stroke="#38bdf8"
+              strokeWidth="1"
+              strokeDasharray="4 4"
+              initial={{ pathLength: 0, opacity: 0.3 }}
+              whileInView={{ pathLength: 1, opacity: 0.6 }}
+              viewport={{ once: true }}
+              transition={{ duration: 1.5, delay: 0.6 }}
+            />
+          </svg>
+        </div>
+
+        {/* Beathr processing node */}
+        <motion.button
+          onClick={() => setShowOutput(!showOutput)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="group relative"
+        >
+          <motion.div
+            animate={{
+              boxShadow: [
+                "0 0 0 0 rgba(74,222,128,0.3)",
+                "0 0 30px 8px rgba(74,222,128,0.15)",
+                "0 0 0 0 rgba(74,222,128,0.3)",
+              ],
+            }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="flex h-20 w-20 items-center justify-center rounded-2xl border border-[#4ade80]/30 bg-gradient-to-br from-[#4ade80]/20 to-[#4ade80]/5"
+          >
+            <svg width="32" height="22" viewBox="0 0 56 28" fill="none">
+              <polyline
+                points="0,18 10,18 14,18 18,4 22,24 26,10 30,18 36,18 40,18 44,6 48,22 52,14 56,18"
+                stroke="#4ade80"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </motion.div>
+          <div className="mt-2 text-center text-xs font-bold text-[#4ade80]">Beathr Engine</div>
+          <div className="text-center text-[10px] text-zinc-600">Clic para ver resultado</div>
+        </motion.button>
+
+        {/* Arrow down */}
+        <AnimatePresence>
+          {showOutput && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="w-full max-w-md overflow-hidden"
+            >
+              {/* Output signal */}
+              <div className="rounded-2xl border border-[#4ade80]/20 bg-[#4ade80]/5 p-6">
+                <div className="mb-4 flex items-center justify-center gap-4">
+                  <div className="relative h-10 w-10 rounded-full bg-[#4ade80] shadow-[0_0_20px_rgba(74,222,128,0.4)]">
+                    <div className="absolute inset-0 animate-ping rounded-full bg-[#4ade80]/20" />
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })}
+                  <div className="h-10 w-10 rounded-full bg-[#fbbf24]/15 ring-1 ring-[#fbbf24]/20" />
+                  <div className="h-10 w-10 rounded-full bg-[#f87171]/15 ring-1 ring-[#f87171]/20" />
+                </div>
+                <p className="text-center text-lg font-bold text-[#4ade80]">
+                  Verde. Hoy puedes apretar.
+                </p>
+                <p className="mt-2 text-center text-xs text-zinc-500">
+                  HRV +12% sobre tu media &middot; 7h 40min sue&ntilde;o &middot; Carga moderada
+                </p>
+
+                {/* Mini metrics */}
+                <div className="mt-4 grid grid-cols-3 gap-2">
+                  {[
+                    { label: "HRV", value: "62ms", delta: "+12%", color: "text-[#4ade80]" },
+                    { label: "Sue\u00f1o", value: "7h40", delta: "85%", color: "text-[#4ade80]" },
+                    { label: "Carga", value: "Media", delta: "TSS 340", color: "text-[#fbbf24]" },
+                  ].map((m) => (
+                    <div key={m.label} className="rounded-lg bg-zinc-900/60 p-2 text-center">
+                      <div className="text-[10px] text-zinc-600">{m.label}</div>
+                      <div className="text-sm font-bold">{m.value}</div>
+                      <div className={`text-[10px] ${m.color}`}>{m.delta}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

@@ -65,10 +65,10 @@ export default function Home() {
           <Logo />
           <div className="flex items-center gap-6">
             <a href="#how" className="hidden text-sm text-zinc-400 transition-colors hover:text-zinc-100 sm:block">
-              C\u00f3mo funciona
+              C&oacute;mo funciona
             </a>
             <a href="#pricing" className="hidden text-sm text-zinc-400 transition-colors hover:text-zinc-100 sm:block">
-              Precios
+              {"Precios"}
             </a>
             <a
               href="#pricing"
@@ -267,29 +267,12 @@ export default function Home() {
             De datos dispersos a una se&ntilde;al clara
           </motion.p>
           <motion.p variants={fadeUp} className="mx-auto mb-10 max-w-lg text-center text-sm text-zinc-500">
-            Haz clic en cada nodo para explorar los 3 pasos
+            Toca cada fuente para ver qu&eacute; datos recogemos. Haz clic en Beathr Engine para ver el resultado.
           </motion.p>
 
           <motion.div variants={fadeUp}>
             <OrbitalSteps />
           </motion.div>
-
-          {/* Steps summary below the orbital */}
-          <div className="mt-12 grid gap-6 md:grid-cols-3">
-            {[
-              { n: "01", t: "Conecta", d: "Strava + Oura o Garmin. Un clic." },
-              { n: "02", t: "Aprende", d: "7 d\u00edas para construir tu perfil." },
-              { n: "03", t: "Sem\u00e1foro", d: "Verde, \u00e1mbar o rojo cada ma\u00f1ana." },
-            ].map((s) => (
-              <motion.div key={s.n} variants={fadeUp} className="text-center">
-                <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full border border-[#4ade80]/30 bg-[#4ade80]/10 text-xs font-bold text-[#4ade80]">
-                  {s.n}
-                </div>
-                <h3 className="mb-1 text-sm font-semibold">{s.t}</h3>
-                <p className="text-xs text-zinc-500">{s.d}</p>
-              </motion.div>
-            ))}
-          </div>
         </motion.div>
       </section>
 
@@ -301,11 +284,52 @@ export default function Home() {
           <motion.h2 variants={fadeUp} className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             Tu ma&ntilde;ana con Beathr
           </motion.h2>
-          <motion.p variants={fadeUp} className="mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
+          <motion.p variants={fadeUp} className="mx-auto mb-4 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
             Esto es lo que ves al despertar
           </motion.p>
+          <motion.p variants={fadeUp} className="mx-auto mb-14 max-w-md text-center text-sm text-zinc-500">
+            Sin abrir 3 apps. Sin interpretar gr&aacute;ficas. Una se&ntilde;al clara en 5 segundos.
+          </motion.p>
 
-          <motion.div variants={fadeUp} className="mx-auto max-w-sm" style={{ perspective: 800 }}>
+          <div className="grid items-center gap-10 md:grid-cols-2">
+            {/* Left: context + benefits */}
+            <motion.div variants={fadeUp} className="space-y-6">
+              {[
+                {
+                  emoji: "\u2705",
+                  title: "Se\u00f1al, no datos",
+                  desc: "Verde, \u00e1mbar o rojo. No necesitas ser cient\u00edfico para entenderlo.",
+                },
+                {
+                  emoji: "\u23f0",
+                  title: "Cada ma\u00f1ana a las 7 AM",
+                  desc: "Email o notificaci\u00f3n push con tu sem\u00e1foro y recomendaci\u00f3n de entrenamiento.",
+                },
+                {
+                  emoji: "\ud83e\udde0",
+                  title: "Aprende de ti",
+                  desc: "Tu baseline es \u00fanica. Beathr ajusta los umbrales a tu fisiolog\u00eda, no a promedios.",
+                },
+                {
+                  emoji: "\ud83d\udcc8",
+                  title: "Tendencias visibles",
+                  desc: "Detecta fatiga acumulada antes de que la sientas. Previene lesiones y sobreentrenamiento.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="flex gap-4">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-zinc-800/80 text-base">
+                    {item.emoji}
+                  </div>
+                  <div>
+                    <h4 className="mb-0.5 text-sm font-semibold">{item.title}</h4>
+                    <p className="text-xs leading-relaxed text-zinc-500">{item.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+
+            {/* Right: phone mockup */}
+            <motion.div variants={fadeUp} className="mx-auto max-w-sm" style={{ perspective: 800 }}>
             <motion.div
               initial={{ rotateY: 5, opacity: 0 }}
               whileInView={{ rotateY: 0, opacity: 1 }}
@@ -347,6 +371,7 @@ export default function Home() {
               </div>
             </motion.div>
           </motion.div>
+          </div>
         </motion.div>
       </section>
 
