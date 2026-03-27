@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { motion, type Variants } from "framer-motion";
+
+const ECGHero3D = dynamic(() => import("@/components/ECGHero3D"), { ssr: false });
 
 /* ─── Animation variants ─── */
 const fadeUp: Variants = {
@@ -72,7 +75,8 @@ export default function Home() {
 
       {/* Hero */}
       <section className="relative flex min-h-screen flex-col items-center justify-center px-6 pt-20 text-center">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(74,222,128,0.08)_0%,_transparent_70%)]" />
+        <ECGHero3D />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(74,222,128,0.04)_0%,_transparent_70%)]" />
         <div className="relative z-10 mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
