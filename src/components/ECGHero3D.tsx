@@ -54,7 +54,7 @@ export default function ECGHero3D() {
     function draw() {
       // Fade trail
       ctx!.globalCompositeOperation = "destination-in";
-      ctx!.fillStyle = "rgba(0,0,0,0.93)";
+      ctx!.fillStyle = "rgba(0,0,0,0.85)";
       ctx!.fillRect(0, 0, w, h);
       ctx!.globalCompositeOperation = "source-over";
 
