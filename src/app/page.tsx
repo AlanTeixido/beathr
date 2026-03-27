@@ -6,7 +6,6 @@ import { motion, type Variants } from "framer-motion";
 
 const CinematicIntro = dynamic(() => import("@/components/CinematicIntro"), { ssr: false });
 const ECGHero3D = dynamic(() => import("@/components/ECGHero3D"), { ssr: false });
-const ScrollExpansionHero = dynamic(() => import("@/components/ScrollExpansionHero"), { ssr: false });
 const OrbitalSteps = dynamic(() => import("@/components/OrbitalSteps"), { ssr: false });
 const PricingToggle = dynamic(() => import("@/components/PricingToggle"), { ssr: false });
 const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), { ssr: false });
@@ -99,27 +98,74 @@ export default function Home() {
       </motion.nav>
 
       {/* ════════════════════════════════════════════
-          HERO — Scroll expansion with ECG background
+          HERO — ECG background + waitlist
          ════════════════════════════════════════════ */}
-      <div className="relative">
+      <section className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-6 pt-20 text-center">
         <ECGHero3D />
-        <ScrollExpansionHero>
-          {/* Waitlist form appears after full expansion */}
-          <div className="flex flex-col items-center gap-6 bg-[#0a0a0a] px-6 py-20 text-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-block rounded-full border border-[#4ade80]/20 bg-[#4ade80]/10 px-4 py-1.5 text-xs font-medium tracking-wide text-[#4ade80]"
-            >
-              BETA PRIVADA
-            </motion.div>
-            <p className="mx-auto max-w-xl text-lg text-zinc-400">
-              Conecta tus datos de sue&ntilde;o, HRV y entrenamiento. Recibe cada
-              ma&ntilde;ana una se&ntilde;al clara: verde, &aacute;mbar o rojo.
-            </p>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(74,222,128,0.04)_0%,_transparent_70%)]" />
+        <div
+          className="pointer-events-none absolute inset-0 z-[5] opacity-[0.03] mix-blend-overlay"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundRepeat: "repeat",
+            backgroundSize: "128px",
+          }}
+        />
+
+        <div className="relative z-10 mx-auto max-w-3xl">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="mb-6 inline-block rounded-full border border-[#4ade80]/20 bg-[#4ade80]/10 px-4 py-1.5 text-xs font-medium tracking-wide text-[#4ade80]"
+          >
+            BETA PRIVADA
+          </motion.div>
+
+          <h1 className="mb-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-6xl">
+            {["Tu", "Garmin", "te", "dice", "lo", "que", "hiciste."].map((word, i) => (
+              <motion.span
+                key={`l1-${i}`}
+                initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
+                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                transition={{ duration: 0.5, delay: 0.4 + i * 0.08, ease: "easeOut" }}
+                className="mr-[0.3em] inline-block"
+              >
+                {word}
+              </motion.span>
+            ))}{" "}
+            <span className="text-[#4ade80]">
+              {["Beathr", "te", "dice", "qu\u00e9", "hacer", "hoy."].map((word, i) => (
+                <motion.span
+                  key={`l2-${i}`}
+                  initial={{ opacity: 0, y: 30, filter: "blur(8px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  transition={{ duration: 0.5, delay: 0.4 + (7 + i) * 0.08, ease: "easeOut" }}
+                  className="mr-[0.3em] inline-block"
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </span>
+          </h1>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.4 }}
+            className="mx-auto mb-10 max-w-xl text-lg text-zinc-400"
+          >
+            Conecta tus datos de sue&ntilde;o, HRV y entrenamiento. Recibe cada
+            ma&ntilde;ana una se&ntilde;al clara: verde, &aacute;mbar o rojo.
+          </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1.6 }}
+          >
             {!submitted ? (
-              <form onSubmit={handleSubmit} className="mx-auto flex w-full max-w-md flex-col gap-3 sm:flex-row">
+              <form onSubmit={handleSubmit} className="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
                 <input
                   type="email"
                   required
@@ -140,9 +186,20 @@ export default function Home() {
                 Apuntado. Te avisaremos cuando abramos plazas.
               </div>
             )}
-          </div>
-        </ScrollExpansionHero>
-      </div>
+          </motion.div>
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2.2 }}
+          className="absolute bottom-10 animate-bounce text-zinc-600"
+        >
+          <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </motion.div>
+      </section>
 
       {/* ════════════════════════════════════════════
           PROBLEM — Interactive hover cards
