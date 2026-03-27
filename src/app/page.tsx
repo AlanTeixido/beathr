@@ -1,10 +1,70 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+
+/* ─── Inline Logo (ECG wave + text) ─── */
+function Logo({ className = "" }: { className?: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 ${className}`}>
+      <svg width="28" height="20" viewBox="0 0 56 28" fill="none">
+        <polyline
+          points="0,18 10,18 14,18 18,4 22,24 26,10 30,18 36,18 40,18 44,6 48,22 52,14 56,18"
+          stroke="#4ade80"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+      </svg>
+      <span className="text-xl font-bold tracking-tight">
+        beat<span className="text-[#4ade80]">hr</span>
+      </span>
+    </span>
+  );
+}
+
+/* ─── Scroll animation hook ─── */
+function useScrollReveal() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const children = Array.from(el.querySelectorAll(".reveal-item"));
+    children.forEach((child, i) => {
+      const htmlChild = child as HTMLElement;
+      htmlChild.style.opacity = "0";
+      htmlChild.style.transform = "translateY(24px)";
+      htmlChild.style.transition = `opacity 0.6s ease ${i * 0.1}s, transform 0.6s ease ${i * 0.1}s`;
+    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const target = entry.target as HTMLElement;
+            target.style.opacity = "1";
+            target.style.transform = "translateY(0)";
+            observer.unobserve(target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+    children.forEach((child) => observer.observe(child));
+    return () => observer.disconnect();
+  }, []);
+
+  return ref;
+}
 
 export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  const problemRef = useScrollReveal();
+  const howRef = useScrollReveal();
+  const demoRef = useScrollReveal();
+  const pricingRef = useScrollReveal();
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -16,9 +76,7 @@ export default function Home() {
       {/* Nav */}
       <nav className="fixed top-0 z-50 w-full border-b border-zinc-800/60 bg-[#0a0a0a]/80 backdrop-blur-md">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-          <span className="text-xl font-bold tracking-tight">
-            beat<span className="text-[#4ade80]">hr</span>
-          </span>
+          <Logo />
           <a
             href="#pricing"
             className="rounded-lg bg-[#4ade80] px-4 py-2 text-sm font-semibold text-[#0a0a0a] transition-opacity hover:opacity-90"
@@ -81,84 +139,194 @@ export default function Home() {
 
       {/* Problem */}
       <section className="border-t border-zinc-800/60 px-6 py-24">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
+        <div ref={problemRef} className="mx-auto max-w-5xl">
+          <h2 className="reveal-item mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             El problema
           </h2>
-          <p className="mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
+          <p className="reveal-item mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
             Tres fuentes de datos que no se hablan entre s&iacute;
           </p>
           <div className="grid gap-6 md:grid-cols-3">
-            <Card
-              icon={
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-[#4ade80]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                </svg>
-              }
-              title="Oura / Garmin"
-              description="HRV, sue&ntilde;o, frecuencia card&iacute;aca en reposo. Datos crudos sin contexto de entrenamiento."
-            />
-            <Card
-              icon={
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-[#4ade80]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
-                </svg>
-              }
-              title="Strava"
-              description="Distancia, ritmo, potencia. No sabe c&oacute;mo dormiste ni cu&aacute;l es tu carga real."
-            />
-            <Card
-              icon={
-                <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-[#4ade80]">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
-                </svg>
-              }
-              title="T&uacute; decidiendo a ciegas"
-              description="&iquest;Entreno fuerte hoy? &iquest;Descanso? Cada d&iacute;a decides con intuici&oacute;n en vez de datos."
-            />
+            <div className="reveal-item">
+              <Card
+                icon={
+                  <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-[#4ade80]">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                  </svg>
+                }
+                title="Oura / Garmin"
+                description="HRV, sue&ntilde;o, frecuencia card&iacute;aca en reposo. Datos crudos sin contexto de entrenamiento."
+              />
+            </div>
+            <div className="reveal-item">
+              <Card
+                icon={
+                  <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-[#4ade80]">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" />
+                  </svg>
+                }
+                title="Strava"
+                description="Distancia, ritmo, potencia. No sabe c&oacute;mo dormiste ni cu&aacute;l es tu carga real."
+              />
+            </div>
+            <div className="reveal-item">
+              <Card
+                icon={
+                  <svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5" className="text-[#4ade80]">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9 5.25h.008v.008H12v-.008z" />
+                  </svg>
+                }
+                title="T&uacute; decidiendo a ciegas"
+                description="&iquest;Entreno fuerte hoy? &iquest;Descanso? Cada d&iacute;a decides con intuici&oacute;n en vez de datos."
+              />
+            </div>
           </div>
         </div>
       </section>
 
       {/* How it works */}
       <section className="border-t border-zinc-800/60 bg-zinc-900/30 px-6 py-24">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
+        <div ref={howRef} className="mx-auto max-w-5xl">
+          <h2 className="reveal-item mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             C&oacute;mo funciona
           </h2>
-          <p className="mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
+          <p className="reveal-item mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
             De datos dispersos a una se&ntilde;al clara en 3 pasos
           </p>
+
+          {/* Animated data flow diagram */}
+          <div className="reveal-item mx-auto mb-16 flex max-w-2xl flex-col items-center">
+            <div className="flex w-full items-center justify-center gap-6 sm:gap-10">
+              {/* Strava */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#fc4c02]/20 text-xs font-bold text-[#fc4c02] ring-1 ring-[#fc4c02]/30">S</div>
+                <span className="text-[10px] text-zinc-500">Strava</span>
+              </div>
+              {/* Oura */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-700/40 text-xs font-bold text-zinc-300 ring-1 ring-zinc-600">O</div>
+                <span className="text-[10px] text-zinc-500">Oura</span>
+              </div>
+              {/* Garmin */}
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#007cc3]/20 text-xs font-bold text-[#007cc3] ring-1 ring-[#007cc3]/30">G</div>
+                <span className="text-[10px] text-zinc-500">Garmin</span>
+              </div>
+            </div>
+
+            {/* Animated dashed lines */}
+            <div className="relative my-4 h-16 w-full max-w-xs">
+              <svg className="h-full w-full" viewBox="0 0 200 60" fill="none">
+                <line x1="40" y1="0" x2="100" y2="55" stroke="#4ade80" strokeWidth="1" strokeDasharray="4 4" className="animate-dash" />
+                <line x1="100" y1="0" x2="100" y2="55" stroke="#4ade80" strokeWidth="1" strokeDasharray="4 4" className="animate-dash" style={{ animationDelay: "0.3s" }} />
+                <line x1="160" y1="0" x2="100" y2="55" stroke="#4ade80" strokeWidth="1" strokeDasharray="4 4" className="animate-dash" style={{ animationDelay: "0.6s" }} />
+              </svg>
+            </div>
+
+            {/* Beathr node */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="relative flex h-16 w-16 items-center justify-center rounded-full bg-[#4ade80]/20 ring-2 ring-[#4ade80]/50 animate-pulse-green">
+                <svg width="28" height="20" viewBox="0 0 56 28" fill="none">
+                  <polyline
+                    points="0,18 10,18 14,18 18,4 22,24 26,10 30,18 36,18 40,18 44,6 48,22 52,14 56,18"
+                    stroke="#4ade80"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <span className="text-sm font-semibold text-[#4ade80]">&rarr; Verde. Hoy puedes apretar.</span>
+            </div>
+          </div>
+
           <div className="grid gap-10 md:grid-cols-3">
-            <Step
-              number="01"
-              title="Conecta Strava + wearable"
-              description="Vincula tu Strava y tu Oura o Garmin. Un clic, sin configurar nada m&aacute;s."
-            />
-            <Step
-              number="02"
-              title="Beathr aprende tu baseline"
-              description="Analizamos tu HRV, sue&ntilde;o y carga de entrenamiento para conocer tu perfil."
-            />
-            <Step
-              number="03"
-              title="Se&ntilde;al diaria: verde, &aacute;mbar, rojo"
-              description="Cada ma&ntilde;ana recibes tu sem&aacute;foro: cu&aacute;nto y c&oacute;mo entrenar hoy."
-            />
+            <div className="reveal-item">
+              <Step
+                number="01"
+                title="Conecta Strava + wearable"
+                description="Vincula tu Strava y tu Oura o Garmin. Un clic, sin configurar nada m&aacute;s."
+              />
+            </div>
+            <div className="reveal-item">
+              <Step
+                number="02"
+                title="Beathr aprende tu baseline"
+                description="Analizamos tu HRV, sue&ntilde;o y carga de entrenamiento para conocer tu perfil."
+              />
+            </div>
+            <div className="reveal-item">
+              <Step
+                number="03"
+                title="Se&ntilde;al diaria: verde, &aacute;mbar, rojo"
+                description="Cada ma&ntilde;ana recibes tu sem&aacute;foro: cu&aacute;nto y c&oacute;mo entrenar hoy."
+              />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Semaphore Demo */}
+      <section className="border-t border-zinc-800/60 px-6 py-24">
+        <div ref={demoRef} className="mx-auto max-w-5xl">
+          <h2 className="reveal-item mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
+            Tu ma&ntilde;ana con Beathr
+          </h2>
+          <p className="reveal-item mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
+            Esto es lo que ves al despertar
+          </p>
+
+          <div className="reveal-item mx-auto max-w-sm">
+            {/* Phone mockup */}
+            <div className="overflow-hidden rounded-[2rem] border border-zinc-700/60 bg-zinc-900 p-1 shadow-2xl shadow-black/40">
+              <div className="rounded-[1.75rem] bg-[#111] px-6 py-8">
+                {/* Status bar */}
+                <p className="mb-6 text-center text-xs text-zinc-500">
+                  Hoy, 27 de marzo &middot; 7:14 AM
+                </p>
+
+                {/* Semaphore circles */}
+                <div className="mb-6 flex items-center justify-center gap-5">
+                  <div className="relative h-14 w-14 rounded-full bg-[#4ade80] shadow-[0_0_24px_rgba(74,222,128,0.5)]">
+                    <div className="absolute inset-0 animate-ping rounded-full bg-[#4ade80]/30" />
+                  </div>
+                  <div className="h-14 w-14 rounded-full bg-[#fbbf24]/20 ring-1 ring-[#fbbf24]/20" />
+                  <div className="h-14 w-14 rounded-full bg-[#f87171]/20 ring-1 ring-[#f87171]/20" />
+                </div>
+
+                {/* Verdict */}
+                <p className="mb-3 text-center text-xl font-bold text-[#4ade80]">
+                  Hoy puedes apretar.
+                </p>
+                <p className="mb-6 text-center text-xs leading-relaxed text-zinc-400">
+                  Tu HRV lleva 4 d&iacute;as por encima de tu media y dormiste
+                  bien. La carga de esta semana es moderada. Buen d&iacute;a para
+                  series o umbral.
+                </p>
+
+                {/* Metric rows */}
+                <div className="space-y-3">
+                  <MetricRow label="HRV vs media" value="+12% &uarr;" color="text-[#4ade80]" />
+                  <MetricRow label="Calidad sue&ntilde;o" value="Buena &middot; 7h 40min" color="text-[#4ade80]" />
+                  <MetricRow label="Carga 7 d&iacute;as" value="Moderada" color="text-[#fbbf24]" />
+                  <MetricRow label="Tendencia" value="Estable" color="text-zinc-300" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Pricing */}
-      <section id="pricing" className="border-t border-zinc-800/60 px-6 py-24">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
+      <section id="pricing" className="border-t border-zinc-800/60 bg-zinc-900/30 px-6 py-24">
+        <div ref={pricingRef} className="mx-auto max-w-5xl">
+          <h2 className="reveal-item mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             Planes
           </h2>
-          <p className="mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
+          <p className="reveal-item mx-auto mb-14 max-w-2xl text-center text-2xl font-bold sm:text-3xl">
             Elige tu nivel de ventaja
           </p>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="reveal-item grid gap-6 md:grid-cols-3">
             <PricingCard
               name="Free"
               price="0"
@@ -192,21 +360,97 @@ export default function Home() {
               ]}
             />
           </div>
+
+          {/* Comparison table */}
+          <div className="reveal-item mt-14 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-zinc-800">
+                  <th className="py-3 pr-4 text-left font-medium text-zinc-400" />
+                  <th className="px-4 py-3 text-center font-semibold text-zinc-300">Free</th>
+                  <th className="px-4 py-3 text-center font-semibold text-[#4ade80]">Pro</th>
+                  <th className="px-4 py-3 text-center font-semibold text-zinc-300">Elite</th>
+                </tr>
+              </thead>
+              <tbody className="text-zinc-400">
+                <ComparisonRow label="Fuentes de datos" free="Strava" pro="Strava + Oura + Garmin" elite="Todas + API" />
+                <ComparisonRow label="Historial" free="7 d&iacute;as" pro="90 d&iacute;as" elite="Ilimitado" />
+                <ComparisonRow label="Ajuste del plan" free={false} pro={true} elite={true} />
+                <ComparisonRow label="Modo coach" free={false} pro={false} elite={true} />
+                <ComparisonRow label="TrainingPeaks" free={false} pro={false} elite={true} />
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-zinc-800/60 px-6 py-10">
-        <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 text-sm text-zinc-500">
-          <span className="font-bold tracking-tight text-zinc-300">
-            beat<span className="text-[#4ade80]">hr</span>
-          </span>
-          <span>&copy; {new Date().getFullYear()} Beathr. Todos los derechos reservados.</span>
+      <footer className="border-t border-zinc-800/60 bg-[#080808]">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <div className="flex flex-col items-center gap-8 md:flex-row md:items-start md:justify-between">
+            {/* Left: logo */}
+            <Logo />
+
+            {/* Middle: links */}
+            <div className="flex gap-8 text-sm text-zinc-400">
+              <a href="#" className="transition-colors hover:text-zinc-100">Producto</a>
+              <a href="#pricing" className="transition-colors hover:text-zinc-100">Precios</a>
+              <a href="#" className="transition-colors hover:text-zinc-100">Blog</a>
+            </div>
+
+            {/* Right: social */}
+            <div className="flex gap-4">
+              {/* X / Twitter */}
+              <a href="#" className="text-zinc-500 transition-colors hover:text-zinc-100" aria-label="Twitter">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              </a>
+              {/* Instagram */}
+              <a href="#" className="text-zinc-500 transition-colors hover:text-zinc-100" aria-label="Instagram">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="2" y="2" width="20" height="20" rx="5" />
+                  <circle cx="12" cy="12" r="5" />
+                  <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none" />
+                </svg>
+              </a>
+              {/* LinkedIn */}
+              <a href="#" className="text-zinc-500 transition-colors hover:text-zinc-100" aria-label="LinkedIn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          {/* Bottom bar */}
+          <div className="mt-10 border-t border-zinc-800/60 pt-6 text-center text-xs text-zinc-600">
+            &copy; 2025 Beathr &middot; hola@beathr.app &middot; beathr.app
+          </div>
         </div>
       </footer>
+
+      {/* CSS animations */}
+      <style jsx global>{`
+        @keyframes dash-flow {
+          to { stroke-dashoffset: -16; }
+        }
+        .animate-dash {
+          animation: dash-flow 1s linear infinite;
+        }
+        @keyframes pulse-green {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.4); }
+          50% { box-shadow: 0 0 20px 6px rgba(74,222,128,0.2); }
+        }
+        .animate-pulse-green {
+          animation: pulse-green 2s ease-in-out infinite;
+        }
+      `}</style>
     </div>
   );
 }
+
+/* ─── Sub-components ─── */
 
 function Card({
   icon,
@@ -221,10 +465,7 @@ function Card({
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6 transition-colors hover:border-zinc-700">
       <div className="mb-4">{icon}</div>
       <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-      <p
-        className="text-sm leading-relaxed text-zinc-400"
-        dangerouslySetInnerHTML={{ __html: description }}
-      />
+      <p className="text-sm leading-relaxed text-zinc-400" dangerouslySetInnerHTML={{ __html: description }} />
     </div>
   );
 }
@@ -244,10 +485,24 @@ function Step({
         {number}
       </div>
       <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-      <p
-        className="text-sm leading-relaxed text-zinc-400"
-        dangerouslySetInnerHTML={{ __html: description }}
-      />
+      <p className="text-sm leading-relaxed text-zinc-400" dangerouslySetInnerHTML={{ __html: description }} />
+    </div>
+  );
+}
+
+function MetricRow({
+  label,
+  value,
+  color,
+}: {
+  label: string;
+  value: string;
+  color: string;
+}) {
+  return (
+    <div className="flex items-center justify-between rounded-lg bg-zinc-800/40 px-4 py-2.5">
+      <span className="text-xs text-zinc-400" dangerouslySetInnerHTML={{ __html: label }} />
+      <span className={`text-xs font-semibold ${color}`} dangerouslySetInnerHTML={{ __html: value }} />
     </div>
   );
 }
@@ -284,15 +539,7 @@ function PricingCard({
       <ul className="mb-6 space-y-3">
         {features.map((f) => (
           <li key={f} className="flex items-start gap-2 text-sm text-zinc-300">
-            <svg
-              width="16"
-              height="16"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#4ade80"
-              strokeWidth="2"
-              className="mt-0.5 shrink-0"
-            >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#4ade80" strokeWidth="2" className="mt-0.5 shrink-0">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
             <span dangerouslySetInnerHTML={{ __html: f }} />
@@ -309,5 +556,32 @@ function PricingCard({
         {featured ? "Empezar ahora" : "Elegir plan"}
       </button>
     </div>
+  );
+}
+
+function ComparisonRow({
+  label,
+  free,
+  pro,
+  elite,
+}: {
+  label: string;
+  free: string | boolean;
+  pro: string | boolean;
+  elite: string | boolean;
+}) {
+  function renderCell(val: string | boolean) {
+    if (val === true) return <span className="text-[#4ade80]">&#10003;</span>;
+    if (val === false) return <span className="text-zinc-600">&mdash;</span>;
+    return <span className="text-zinc-300" dangerouslySetInnerHTML={{ __html: val }} />;
+  }
+
+  return (
+    <tr className="border-b border-zinc-800/50">
+      <td className="py-3 pr-4 text-left text-zinc-400" dangerouslySetInnerHTML={{ __html: label }} />
+      <td className="px-4 py-3 text-center">{renderCell(free)}</td>
+      <td className="px-4 py-3 text-center">{renderCell(pro)}</td>
+      <td className="px-4 py-3 text-center">{renderCell(elite)}</td>
+    </tr>
   );
 }
