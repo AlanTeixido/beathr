@@ -13,8 +13,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Beathr - Tu semaforo de entrenamiento",
-  description: "Conecta tus datos de sueno, HRV y entrenamiento. Recibe cada manana una senal clara: verde, ambar o rojo.",
+  title: "Beathr — Recovery Intelligence",
+  description:
+    "Tu Garmin te dice lo que hiciste. Beathr te dice qué hacer hoy.",
+  icons: {
+    icon: "/favicon.svg",
+  },
+  openGraph: {
+    title: "Beathr — Recovery Intelligence",
+    description:
+      "Tu Garmin te dice lo que hiciste. Beathr te dice qué hacer hoy.",
+    images: [{ url: "/og-image.svg", width: 1200, height: 630 }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Beathr — Recovery Intelligence",
+    description:
+      "Tu Garmin te dice lo que hiciste. Beathr te dice qué hacer hoy.",
+    images: ["/og-image.svg"],
+  },
 };
 
 export default function RootLayout({
