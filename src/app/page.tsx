@@ -1,13 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { motion, type Variants } from "framer-motion";
 
+const CinematicIntro = dynamic(() => import("@/components/CinematicIntro"), { ssr: false });
 const ECGHero3D = dynamic(() => import("@/components/ECGHero3D"), { ssr: false });
 const ScrollExpansionHero = dynamic(() => import("@/components/ScrollExpansionHero"), { ssr: false });
 const OrbitalSteps = dynamic(() => import("@/components/OrbitalSteps"), { ssr: false });
 const PricingToggle = dynamic(() => import("@/components/PricingToggle"), { ssr: false });
+const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), { ssr: false });
 
 /* ─── Animation variants ─── */
 const fadeUp: Variants = {
@@ -44,6 +46,21 @@ function Logo({ className = "" }: { className?: string }) {
 export default function Home() {
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
+  const [isDark, setIsDark] = useState(true);
+
+  const handleIntroDone = useCallback(() => setIntroDone(true), []);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isDark) {
+      root.classList.add("dark");
+      root.style.colorScheme = "dark";
+    } else {
+      root.classList.remove("dark");
+      root.style.colorScheme = "light";
+    }
+  }, [isDark]);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,23 +68,26 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0a] text-zinc-100">
+    <div className={`min-h-screen transition-colors duration-500 ${isDark ? "bg-[#0a0a0a] text-zinc-100" : "bg-white text-zinc-900"}`}>
+      {/* Cinematic intro */}
+      {!introDone && <CinematicIntro onComplete={handleIntroDone} />}
       {/* Nav */}
       <motion.nav
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={{ opacity: introDone ? 1 : 0 }}
         transition={{ duration: 0.5 }}
-        className="fixed top-0 z-50 w-full border-b border-zinc-800/60 bg-[#0a0a0a]/80 backdrop-blur-md"
+        className={`fixed top-0 z-50 w-full border-b backdrop-blur-md ${isDark ? "border-zinc-800/60 bg-[#0a0a0a]/80" : "border-zinc-200 bg-white/80"}`}
       >
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <Logo />
-          <div className="flex items-center gap-6">
-            <a href="#how" className="hidden text-sm text-zinc-400 transition-colors hover:text-zinc-100 sm:block">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <a href="#how" className={`hidden text-sm transition-colors sm:block ${isDark ? "text-zinc-400 hover:text-zinc-100" : "text-zinc-500 hover:text-zinc-900"}`}>
               C&oacute;mo funciona
             </a>
-            <a href="#pricing" className="hidden text-sm text-zinc-400 transition-colors hover:text-zinc-100 sm:block">
-              {"Precios"}
+            <a href="#pricing" className={`hidden text-sm transition-colors sm:block ${isDark ? "text-zinc-400 hover:text-zinc-100" : "text-zinc-500 hover:text-zinc-900"}`}>
+              Precios
             </a>
+            <ThemeToggle isDark={isDark} onToggle={() => setIsDark(!isDark)} />
             <a
               href="#pricing"
               className="rounded-lg bg-[#4ade80] px-4 py-2 text-sm font-semibold text-[#0a0a0a] transition-opacity hover:opacity-90"
@@ -127,7 +147,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           PROBLEM — Interactive hover cards
          ════════════════════════════════════════════ */}
-      <section className="border-t border-zinc-800/60 px-6 py-24">
+      <section className={`border-t px-6 py-24 ${isDark ? "border-zinc-800/60" : "border-zinc-200"}`}>
         <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={VP} className="mx-auto max-w-5xl">
           <motion.h2 variants={fadeUp} className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             El problema
@@ -191,7 +211,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           HOW IT WORKS — Orbital timeline
          ════════════════════════════════════════════ */}
-      <section id="how" className="border-t border-zinc-800/60 bg-zinc-900/30 px-6 py-24">
+      <section id="how" className={`border-t px-6 py-24 ${isDark ? "border-zinc-800/60 bg-zinc-900/30" : "border-zinc-200 bg-zinc-50"}`}>
         <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={VP} className="mx-auto max-w-5xl">
           <motion.h2 variants={fadeUp} className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             C&oacute;mo funciona
@@ -212,7 +232,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           SEMAPHORE DEMO — Phone mockup
          ════════════════════════════════════════════ */}
-      <section className="border-t border-zinc-800/60 px-6 py-24">
+      <section className={`border-t px-6 py-24 ${isDark ? "border-zinc-800/60" : "border-zinc-200"}`}>
         <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={VP} className="mx-auto max-w-5xl">
           <motion.h2 variants={fadeUp} className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             Tu ma&ntilde;ana con Beathr
@@ -311,7 +331,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           PRICING — Toggle + animated cards
          ════════════════════════════════════════════ */}
-      <section id="pricing" className="border-t border-zinc-800/60 bg-zinc-900/30 px-6 py-24">
+      <section id="pricing" className={`border-t px-6 py-24 ${isDark ? "border-zinc-800/60 bg-zinc-900/30" : "border-zinc-200 bg-zinc-50"}`}>
         <motion.div variants={stagger} initial="hidden" whileInView="visible" viewport={VP} className="mx-auto max-w-5xl">
           <motion.h2 variants={fadeUp} className="mb-4 text-center text-sm font-semibold uppercase tracking-widest text-[#4ade80]">
             Planes
@@ -328,7 +348,7 @@ export default function Home() {
       {/* ════════════════════════════════════════════
           FOOTER — Clean centered design
          ════════════════════════════════════════════ */}
-      <footer className="border-t border-zinc-800/60 bg-[#080808] py-16">
+      <footer className={`border-t py-16 ${isDark ? "border-zinc-800/60 bg-[#080808]" : "border-zinc-200 bg-zinc-50"}`}>
         <div className="mx-auto max-w-5xl px-6">
           {/* Logo */}
           <div className="flex justify-center">
@@ -379,7 +399,7 @@ export default function Home() {
           </div>
 
           {/* Bottom */}
-          <div className="border-t border-zinc-800/40 pt-8 text-center text-xs text-zinc-600">
+          <div className={`border-t pt-8 text-center text-xs ${isDark ? "border-zinc-800/40 text-zinc-600" : "border-zinc-200 text-zinc-400"}`}>
             &copy; 2025 Beathr &middot; hola@beathr.app &middot; beathr.app
           </div>
         </div>
